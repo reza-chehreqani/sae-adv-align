@@ -1,0 +1,58 @@
+# Demonstrates that base recipe and alignment are orthogonal: this is
+# TRADES + SAE-latent alignment (drift.mode=frozen_residual), a combination
+# that required zero new code, only this config. Recent SOTA work (DRA,
+# "Expanding the Role of Diffusion Models for Robust Classifier Training",
+# 2026) found representation alignment gives consistent gains ON TOP OF a
+# strong AT baseline, not just in place of one -- worth checking here too.
+name: trades_sae_align_frozen_residual
+base: trades
+out_dir: ./runs/trades_sae_align_frozen_residual
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+
+model:
+  arch: preact_resnet18
+  feature_layer: auto
+
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 10
+  norm: linf
+
+trades:
+  beta: 6.0
+
+sae:
+  reduce: gap
+  kind: topk
+  dict_size: 4096
+  k: 32
+  pretrained_path: ./runs/sae_pretrain/sae.pt
+
+drift:
+  mode: frozen_residual
+  residual_kind: absolute
+  residual_weight: 1.0
+  fvu_alarm_threshold: 0.5
+
+align:
+  enabled: true
+  space: sae
+  kind: l2
+  weight: 1.0
+  stop_grad_clean: true
+
+optim:
+  epochs: 30
+  lr: 0.01
+  lr_schedule: multistep
+  milestones: [15, 25]
+  weight_decay: 5.0e-4
+
+data:
+  dataset: cifar10
+  batch_size: 128
+
+eval_every: 2
+save_every: 5
+log_every: 100

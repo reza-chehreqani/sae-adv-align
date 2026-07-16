@@ -1,0 +1,39 @@
+# Template for the "large drift" regime: full adversarial training from
+# scratch (no resume_from), 100+ epochs, standard Madry/TRADES-scale LR
+# schedule. Once a drift-control strategy wins on the fast fine-tuning
+# configs above, re-validate it here -- from-scratch AT moves the backbone's
+# weights much more than fine-tuning does, which is exactly the regime
+# where a frozen SAE is most likely to go stale (see README.md).
+# Copy this file and add align/sae/drift blocks matching whichever config
+# above you want to re-run at full scale; note that the SAE should still be
+# pretrained on a *clean* checkpoint (you can reuse cifar10_clean_pretrain.yaml
+# or, better, pretrain a fresh clean model with more epochs/data augmentation
+# to match production-scale expectations).
+name: baseline_madry_full_scale
+base: madry
+out_dir: ./runs/baseline_madry_full_scale
+resume_from: null
+
+model:
+  arch: wideresnet28_10   # switch to the bigger backbone once you're past the fast-iteration phase
+
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 10
+  norm: linf
+
+optim:
+  epochs: 110
+  lr: 0.1
+  lr_schedule: multistep
+  milestones: [75, 90, 100]
+  weight_decay: 5.0e-4
+
+data:
+  dataset: cifar10
+  batch_size: 128
+
+eval_every: 5
+save_every: 10
+log_every: 100

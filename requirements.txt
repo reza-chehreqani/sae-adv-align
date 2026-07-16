@@ -1,0 +1,7 @@
+torch>=2.2
+torchvision>=0.17
+numpy
+pyyaml
+# optional but strongly recommended for the final evaluation suite
+# (scripts/evaluate_checkpoint.py falls back gracefully if it's missing):
+autoattack

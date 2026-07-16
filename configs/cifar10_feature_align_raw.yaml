@@ -1,0 +1,43 @@
+# Ablation control: alignment in RAW activation space instead of an SAE's
+# latent space (align.space: raw). Everything else identical to
+# cifar10_sae_align_frozen_residual.yaml. Compare the two directly -- this
+# is the single most important comparison for validating the core idea,
+# since raw-feature alignment (AR-AT / feature denoising / AFA-style) is
+# already known to help; the open question is whether the SAE's disentangled
+# basis does *better*.
+name: feature_align_raw
+base: madry
+out_dir: ./runs/feature_align_raw
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+
+model:
+  arch: preact_resnet18
+  feature_layer: auto
+
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 10
+  norm: linf
+
+align:
+  enabled: true
+  space: raw
+  kind: l2                # try l1 / cosine as ablations too
+  weight: 1.0              # lambda; sweep this
+  stop_grad_clean: true    # AR-AT's finding: asymmetric penalty beats symmetric
+
+optim:
+  epochs: 30
+  lr: 0.01
+  lr_schedule: multistep
+  milestones: [15, 25]
+  weight_decay: 5.0e-4
+
+data:
+  dataset: cifar10
+  batch_size: 128
+
+eval_every: 2
+save_every: 5
+log_every: 100

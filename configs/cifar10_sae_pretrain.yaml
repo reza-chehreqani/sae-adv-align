@@ -1,0 +1,31 @@
+# Phase 2: pretrain the sparse autoencoder on the frozen clean checkpoint's
+# activations. Run with scripts/pretrain_sae.py, not scripts/train.py.
+# NOTE: this script reuses ExperimentConfig for convenience; `base`,
+# `attack`, `trades`, `align`, `drift` are all IGNORED by pretrain_sae.py --
+# only `data`, `model`, `sae`, `optim`, `resume_from`, `out_dir`, `log_every`
+# matter here.
+name: sae_pretrain
+out_dir: ./runs/sae_pretrain
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+
+model:
+  arch: preact_resnet18
+  feature_layer: auto     # -> layer3 for preact_resnet18, see models/preact_resnet.py
+
+sae:
+  reduce: gap              # gap = pool each (C,H,W) map to a (C,) vector; try "spatial" as an ablation
+  kind: topk                # topk needs no sparsity-coefficient tuning; try "l1" as an ablation
+  dict_size: 4096            # ~8x overcomplete relative to layer3's 256 channels
+  k: 32                       # ~1% of dict_size active per example
+  tied_weights: false
+  normalize_decoder: true
+
+optim:
+  epochs: 15
+  lr: 1.0e-3
+
+data:
+  dataset: cifar10
+  batch_size: 256
+
+log_every: 200

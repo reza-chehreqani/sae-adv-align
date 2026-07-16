@@ -1,0 +1,31 @@
+# Baseline 1: plain PGD adversarial training (Madry et al. 2018), fine-tuned
+# from the clean checkpoint so it starts from the same point as every other
+# method below.
+name: baseline_madry
+base: madry
+out_dir: ./runs/baseline_madry
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+
+model:
+  arch: preact_resnet18
+
+attack:
+  epsilon: 0.03137254901960784   # 8/255
+  alpha: 0.00784313725490196     # 2/255
+  steps: 10
+  norm: linf
+
+optim:
+  epochs: 30
+  lr: 0.01
+  lr_schedule: multistep
+  milestones: [15, 25]
+  weight_decay: 5.0e-4
+
+data:
+  dataset: cifar10
+  batch_size: 128
+
+eval_every: 2
+save_every: 5
+log_every: 100

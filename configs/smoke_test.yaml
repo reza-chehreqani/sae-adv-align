@@ -1,0 +1,31 @@
+# Pure offline smoke test: random synthetic images, tiny model config,
+# 1 epoch, 2 PGD steps. Exists to sanity-check that a code change didn't
+# break the pipeline before spending real GPU time. Does NOT use align/sae
+# by default -- see README.md's "Testing" section for the full smoke-test
+# matrix that also exercises align.space=raw/sae and every drift.mode.
+name: smoke_test
+base: madry
+out_dir: ./runs/smoke_test
+
+model:
+  arch: preact_resnet18
+
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 2
+
+optim:
+  epochs: 1
+  lr: 0.1
+
+data:
+  dataset: synthetic
+  batch_size: 8
+  synthetic_size: 64
+  val_fraction: 0.25
+  num_workers: 0
+
+eval_every: 1
+save_every: 1
+log_every: 1

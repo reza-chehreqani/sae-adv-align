@@ -1,0 +1,55 @@
+# Proposed method, drift-control option 2 (RECOMMENDED starting point):
+# SAE frozen, but a residual regularization term keeps the backbone's clean
+# activations reconstructable by it. This is the option with the strongest
+# outside evidence (SAE-FT, arXiv 2605.15961) -- start here.
+name: sae_align_frozen_residual
+base: madry
+out_dir: ./runs/sae_align_frozen_residual
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+
+model:
+  arch: preact_resnet18
+  feature_layer: auto
+
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 10
+  norm: linf
+
+sae:
+  reduce: gap
+  kind: topk
+  dict_size: 4096
+  k: 32
+  tied_weights: false
+  normalize_decoder: true
+  pretrained_path: ./runs/sae_pretrain/sae.pt
+
+drift:
+  mode: frozen_residual
+  residual_kind: absolute   # try "delta" as an ablation (needs an initial-backbone snapshot, built automatically)
+  residual_weight: 1.0       # sweep this: too low -> SAE goes stale like "frozen"; too high -> may hurt clean/robust accuracy
+  fvu_alarm_threshold: 0.5
+
+align:
+  enabled: true
+  space: sae
+  kind: l2
+  weight: 1.0
+  stop_grad_clean: true
+
+optim:
+  epochs: 30
+  lr: 0.01
+  lr_schedule: multistep
+  milestones: [15, 25]
+  weight_decay: 5.0e-4
+
+data:
+  dataset: cifar10
+  batch_size: 128
+
+eval_every: 2
+save_every: 5
+log_every: 100

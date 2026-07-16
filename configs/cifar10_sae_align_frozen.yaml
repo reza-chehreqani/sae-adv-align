@@ -1,0 +1,53 @@
+# Proposed method, drift-control option 1: SAE frozen, no correction at all.
+# This is the naive baseline used to demonstrate that the drift problem is
+# real in your setting -- watch eval_log.csv's sae_fvu column climb over
+# training. Requires cifar10_sae_pretrain.yaml to have been run first.
+name: sae_align_frozen
+base: madry
+out_dir: ./runs/sae_align_frozen
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+
+model:
+  arch: preact_resnet18
+  feature_layer: auto
+
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 10
+  norm: linf
+
+sae:
+  reduce: gap
+  kind: topk
+  dict_size: 4096
+  k: 32
+  tied_weights: false
+  normalize_decoder: true
+  pretrained_path: ./runs/sae_pretrain/sae.pt
+
+drift:
+  mode: frozen
+  fvu_alarm_threshold: 0.5
+
+align:
+  enabled: true
+  space: sae
+  kind: l2                 # try feature_add as an ablation -- more surgical, see losses.py
+  weight: 1.0
+  stop_grad_clean: true
+
+optim:
+  epochs: 30
+  lr: 0.01
+  lr_schedule: multistep
+  milestones: [15, 25]
+  weight_decay: 5.0e-4
+
+data:
+  dataset: cifar10
+  batch_size: 128
+
+eval_every: 2
+save_every: 5
+log_every: 100
