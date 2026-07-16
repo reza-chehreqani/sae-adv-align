@@ -4,4 +4,5 @@ numpy
 pyyaml
 # optional but strongly recommended for the final evaluation suite
 # (scripts/evaluate_checkpoint.py falls back gracefully if it's missing):
-autoattack
+# autoattack
+git+https://github.com/fra31/auto-attack
