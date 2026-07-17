@@ -10,16 +10,16 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-echo "=== Phase 1: clean pretraining ==="
-python scripts/train.py --config configs/cifar10_clean_pretrain.yaml
+# echo "=== Phase 1: clean pretraining ==="
+# python scripts/train.py --config configs/cifar10_clean_pretrain.yaml
 
-echo "=== Phase 2: SAE pretraining ==="
-python scripts/pretrain_sae.py --config configs/cifar10_sae_pretrain.yaml
+# echo "=== Phase 2: SAE pretraining ==="
+# python scripts/pretrain_sae.py --config configs/cifar10_sae_pretrain.yaml
 
-echo "=== Phase 3: baselines ==="
-python scripts/train.py --config configs/cifar10_baseline_madry.yaml
-python scripts/train.py --config configs/cifar10_baseline_trades.yaml
-python scripts/train.py --config configs/cifar10_feature_align_raw.yaml
+# echo "=== Phase 3: baselines ==="
+# python scripts/train.py --config configs/cifar10_baseline_madry.yaml
+# python scripts/train.py --config configs/cifar10_baseline_trades.yaml
+# python scripts/train.py --config configs/cifar10_feature_align_raw.yaml
 
 echo "=== Phase 4: proposed method, all four drift-control strategies ==="
 python scripts/train.py --config configs/cifar10_sae_align_frozen.yaml
