@@ -1,0 +1,66 @@
+name: sae_align_frozen
+base: madry
+seed: 0
+device: auto
+out_dir: ./runs/sae_align_frozen
+eval_every: 2
+save_every: 5
+log_every: 100
+resume_from: ./runs/clean_pretrain/checkpoints/final.pt
+data:
+  dataset: cifar10
+  data_root: ./data
+  batch_size: 128
+  eval_batch_size: 256
+  num_workers: 4
+  val_fraction: 0.02
+  synthetic_size: 2048
+model:
+  arch: preact_resnet18
+  num_classes: 10
+  feature_layer: auto
+attack:
+  epsilon: 0.03137254901960784
+  alpha: 0.00784313725490196
+  steps: 10
+  norm: linf
+  random_start: true
+sae:
+  reduce: gap
+  kind: topk
+  dict_size: 4096
+  k: 32
+  l1_coef: 0.001
+  tied_weights: false
+  normalize_decoder: true
+  pretrained_path: ./runs/sae_pretrain/sae.pt
+drift:
+  mode: frozen
+  residual_kind: absolute
+  residual_weight: 1.0
+  sae_lr: 0.001
+  sae_recon_weight: 1.0
+  refresh_every: 10
+  refresh_steps: 300
+  fvu_alarm_threshold: 0.5
+align:
+  enabled: true
+  space: sae
+  kind: l2
+  weight: 1.0
+  stop_grad_clean: true
+  inner_max_uses_alignment: false
+  inner_max_align_weight: 0.0
+trades:
+  beta: 6.0
+optim:
+  epochs: 30
+  lr: 0.01
+  momentum: 0.9
+  weight_decay: 0.0005
+  lr_schedule: multistep
+  milestones:
+  - 15
+  - 25
+  lr_gamma: 0.1
+  warmup_epochs: 0
