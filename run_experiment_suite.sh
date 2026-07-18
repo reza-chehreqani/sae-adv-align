@@ -22,9 +22,9 @@ cd "$(dirname "$0")"
 # python scripts/train.py --config configs/cifar10_feature_align_raw.yaml
 
 echo "=== Phase 4: proposed method, all four drift-control strategies ==="
-python scripts/train.py --config configs/cifar10_sae_align_frozen.yaml
-python scripts/train.py --config configs/cifar10_sae_align_frozen_residual.yaml
-python scripts/train.py --config configs/cifar10_sae_align_joint.yaml
+# python scripts/train.py --config configs/cifar10_sae_align_frozen.yaml
+# python scripts/train.py --config configs/cifar10_sae_align_frozen_residual.yaml
+# python scripts/train.py --config configs/cifar10_sae_align_joint.yaml
 python scripts/train.py --config configs/cifar10_sae_align_periodic_refresh.yaml
 
 echo "=== Phase 5 (optional): TRADES + SAE alignment, shows the two axes compose ==="
@@ -35,7 +35,7 @@ for run in baseline_madry baseline_trades feature_align_raw \
            sae_align_frozen sae_align_frozen_residual sae_align_joint sae_align_periodic_refresh \
            trades_sae_align_frozen_residual; do
     echo "--- evaluating $run ---"
-    python scripts/evaluate_checkpoint.py --checkpoint "runs/$run/checkpoints/best.pt" --skip_autoattack
+    python scripts/evaluate_checkpoint.py --checkpoint "runs/$run/checkpoints/best.pt" #--skip_autoattack
 done
 
 echo "=== Phase 7: comparison table ==="
